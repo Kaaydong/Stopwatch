@@ -15,6 +15,10 @@ public class MainActivity extends AppCompatActivity {
     private Button restart;
     private Chronometer display;
     private boolean setting;
+    private long pause;
+    private long current;
+    private long difference;
+    private boolean start;
 
     public static final String TAG = MainActivity.class.getSimpleName();
     // Look up the Log class for android
@@ -40,15 +44,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+
                 if (setting == false) {
+                    current = SystemClock.elapsedRealtime();
+                    difference = current-pause;
+                    if (start == false) {
+                        start = true;
+                        difference = 0;
+                    }
                     setting = true;
                     activate.setText("Pause");
                     long time = display.getBase();
-                    display.setBase(time);
+                    display.setBase(time+difference);
                     display.start();
                 }
                 else
                 {
+
+                    pause = SystemClock.elapsedRealtime();
                     activate.setText("Start");
                     setting = false;
                     display.stop();
@@ -59,8 +72,9 @@ public class MainActivity extends AppCompatActivity {
         restart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setting = false;
                 display.setBase(SystemClock.elapsedRealtime());
+                pause = SystemClock.elapsedRealtime();
+                current = SystemClock.elapsedRealtime();
             }
         });
     }
@@ -70,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         wireWidgets();
         setListeners();
+
         Log.d(TAG, "onCreate: ");
 
     }
