@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
         if (savedInstanceState != null)
         {
+            setting = savedInstanceState.getBoolean(KEY_BUTTON_STATE);
             display.setBase(savedInstanceState.getLong(KEY_CHRONOMETER_BASE));
             if (savedInstanceState.getBoolean(KEY_BUTTON_STATE)==true)
             {
