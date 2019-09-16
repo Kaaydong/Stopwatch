@@ -1,8 +1,10 @@
 package com.example.stopwatch;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +13,10 @@ import android.widget.Chronometer;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String TAG= MainActivity.class.getSimpleName();
+    public static final String KEY_CHRONOMETER_BASE = "chronometer base";
+    public static final String KEY_BUTTON_STATE = "button setting";
+    public static final String KEY_BUTTON_FIRST = "button start";
     private Button activate;
     private Button restart;
     private Chronometer display;
@@ -20,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     private long difference;
     private boolean start;
 
-    public static final String TAG = MainActivity.class.getSimpleName();
     // Look up the Log class for android
     // list all the levels of logging and when they're used
     // order them from lowest priority to highest priority
@@ -30,8 +35,14 @@ public class MainActivity extends AppCompatActivity {
     // Warning Log.w
     // Error Log.e
 
-    // launch app--> onCreate, onStart, onResume
-
+    // What methods are called when you do various phone actions?
+// launched app--> onCreate, onStart, onResume
+// rotate --> onPause, onStop, onRestart, onStart, onResume
+// hit the square button --> onPause
+// click back on the app from the square button --> onResume
+// hit the circle button --> onPause
+// relaunch the app from the phone navigation (not play button)--> onResume
+// hit the back button --> onPause, onStop
     public void wireWidgets()
     {
         activate = findViewById(R.id.button_main_activate);
@@ -53,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                         difference = 0;
                     }
                     setting = true;
-                    activate.setText("Pause");
+                    activate.setText(getString(R.string.main_pause));
                     long time = display.getBase();
                     display.setBase(time+difference);
                     display.start();
@@ -62,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 {
 
                     pause = SystemClock.elapsedRealtime();
-                    activate.setText("Start");
+                    activate.setText(getString(R.string.main_activate));
                     setting = false;
                     display.stop();
                 }
@@ -84,9 +95,32 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         wireWidgets();
         setListeners();
+        if (savedInstanceState != null)
+        {
+            display.setBase(savedInstanceState.getLong(KEY_CHRONOMETER_BASE));
+            if (savedInstanceState.getBoolean(KEY_BUTTON_STATE)==true)
+            {
+                activate.setText("pause");
+
+                start = savedInstanceState.getBoolean(KEY_BUTTON_FIRST);
+                display.start();
+            }
+
+        }
 
         Log.d(TAG, "onCreate: ");
 
+
+
+        // if the savedInstanceState isn't null
+        // pull out the value of the base that we saved from the bundle
+        // set the chronometer's base to that value
+        // start the chronometer
+
+
+        // next functionality would be to also store in the bundle
+        // whether it was running or stopped to decide if you
+        // should start it or not
     }
 
     @Override
@@ -104,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+
         Log.d(TAG, "onPause: ");
     }
 
@@ -117,5 +152,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(KEY_CHRONOMETER_BASE, display.getBase());
+        outState.putBoolean(KEY_BUTTON_STATE, setting);
+        outState.putBoolean(KEY_BUTTON_FIRST, start);
     }
 }
